@@ -34,37 +34,40 @@ def logmgf_from_counts(counts, noise_eps, l):
     return logmgf_exact(q, 2.0 * noise_eps, l)
 
 if __name__ == "__main__":
-    original_votes = pickle.load(open("votes.pickle", "rb"))
 
     noise_eps = 0.1 # epsilon for each call in noisy_max
     noise_delta = 1e-5
     l_moments = 1 + np.array(range(8))
 
-    qrs = []
-    eps = []
-    for queries in np.arange(0, len(original_votes), 200) + 200:
-        votes = original_votes[:queries]
+    for n_teachers in [50, 100, 150, 250]:
+        original_votes = pickle.load(open("votes_%d.pickle" % n_teachers, "rb"))
+        qrs = []
+        eps = []
+        for queries in np.arange(0, len(original_votes), 200) + 200:
+            votes = original_votes[:queries]
 
-        N, NUM_TEACHERS = votes.shape
-        counts = np.zeros((N, 10))
-        for i in range(N):
-            for j in range(NUM_TEACHERS):
-                counts[i, votes[i, j]] += 1
+            N, NUM_TEACHERS = votes.shape
+            counts = np.zeros((N, 10))
+            for i in range(N):
+                for j in range(NUM_TEACHERS):
+                    counts[i, votes[i, j]] += 1
 
-        total_log_mgf_nm = np.array([0.0 for _ in l_moments])
+            total_log_mgf_nm = np.array([0.0 for _ in l_moments])
 
-        for n in range(N):
-            total_log_mgf_nm += np.array(
-                    [logmgf_from_counts(counts[i], noise_eps, l) for l in l_moments])
+            for n in range(N):
+                total_log_mgf_nm += np.array(
+                        [logmgf_from_counts(counts[i], noise_eps, l) for l in l_moments])
 
-        eps_list_nm = (total_log_mgf_nm - math.log(noise_delta)) / l_moments
+            eps_list_nm = (total_log_mgf_nm - math.log(noise_delta)) / l_moments
 
-        print("Queries:  ", queries)
-        qrs.append(queries)
-        eps.append(min(eps_list_nm))
+            print("Queries:  ", queries)
+            qrs.append(queries)
+            eps.append(min(eps_list_nm))
 
-    plt.plot(qrs, eps)
+        plt.plot(qrs, eps, label = "%d teachers" % n_teachers)
+
     plt.xlabel("Number of queries")
-    plt.ylabel("$\epsilon$")
-    plt.title("With 100 teachers")
+    plt.ylabel("Privacy level ($\epsilon$)")
+    plt.legend()
+    # plt.title("With 150 teachers")
     plt.savefig("queries_analysis.png", bbox_inches = "tight")

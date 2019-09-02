@@ -5,7 +5,7 @@ import multiprocessing as mp
 from sklearn.linear_model import LogisticRegression
 from utilities import *
 
-N_TEACHERS = 100
+N_TEACHERS = 150
 
 def split_data(x, y):
     return zip(np.split(x, N_TEACHERS), np.split(y, N_TEACHERS))
@@ -34,6 +34,6 @@ if __name__ == "__main__":
     votes = np.array([model.predict(test_x) for model in models]).T
     print("Votes shape: ", votes.shape)
 
-    with open("teachers.pickle", "wb") as teachers, open("votes.pickle", "wb") as fvotes:
+    with open("teachers_150.pickle", "wb") as teachers, open("votes_150.pickle", "wb") as fvotes:
         pickle.dump(models, teachers)
         pickle.dump(votes, fvotes)
