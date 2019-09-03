@@ -5,9 +5,6 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from utilities import *
 
-def build_model(x, y):
-    return LogisticRegression(solver = 'lbfgs').fit(x, y)
-
 if __name__ == "__main__":
     t = time.time()
     test_x, test_y = loadmnist('data/t10k-images-idx3-ubyte',
